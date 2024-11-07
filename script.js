@@ -1,29 +1,10 @@
-var boxes = document.querySelectorAll(".game-box");
-var start_Btn = document.getElementById("start-btn");
-var game_message = document.getElementById("game-message");
-var restart_Btn = document.getElementById("restart-btn");
-var index = true;
-var count = 0;
+let boxes = document.querySelectorAll(".game-box");
+let start_Btn = document.getElementById("start-btn");
+let game_message = document.getElementById("game-message");
+let restart_Btn = document.getElementById("restart-btn");
+let index = true;
+let count = 0;
 
-//  5x5
-var winningPossible = [
-  // Lines
-  [0, 1, 2], [1, 2, 3], [2, 3, 4],
-  [5, 6, 7], [6, 7, 8], [7, 8, 9],
-  [10, 11, 12], [11, 12, 13], [12, 13, 14],
-  [15, 16, 17], [16, 17, 18], [17, 18, 19],
-  [20, 21, 22], [21, 22, 23], [22, 23, 24],
-  // Cols
-  [0, 5, 10], [5, 10, 15], [10, 15, 20],
-  [1, 6, 11], [6, 11, 16], [11, 16, 21],
-  [2, 7, 12], [7, 12, 17], [12, 17, 22],
-  [3, 8, 13], [8, 13, 18], [13, 18, 23],
-  [4, 9, 14], [9, 14, 19], [14, 19, 24],
-    //  Descending diagonals
-  [0, 6, 12], [1, 7, 13], [2, 8, 14], [3, 9, 15], [4, 10, 16],
-    // Rising diagonals
-  [20, 16, 12], [21, 17, 13], [22, 18, 14], [23, 19, 15], [24, 20, 16]
-];
 
 let animation = () => {
     game_message.style.transition = "all .5s ease-in-out";
@@ -31,29 +12,55 @@ let animation = () => {
 }
 
 let showWinner = (isWinner) => {
-    boxes.forEach(e => e.disabled = true);
-    let message;
-    if (isWinner === "x") {
-        message = "🎉 Player X wins ! 🎉";
-    } else {
-        message = "👏 Player Y wins ! 👏";
-    }
-    game_message.innerHTML = `<p>${message}</p>`;
+  boxes.forEach(e => e.disabled = true)
+  game_message.innerHTML = `<p><span>👑</span>Winner is '${isWinner}'</p>`;
     animation();
 }
 
-let checkWinner = () => {
-    winningPossible.forEach((posibility) => {
-        var valueOne = boxes[posibility[0]].innerText;
-        var valueTwo = boxes[posibility[1]].innerText;
-        var valueThree = boxes[posibility[2]].innerText;
-        if (valueOne != "" && valueTwo != "" && valueThree != "") {
-            if (valueOne === "x" && valueThree === "x" && valueTwo === "x" || valueOne === "o" && valueThree === "o" && valueTwo === "o") {
-                showWinner(valueOne)
-            }
+const checkWinner = () => {
+  const playerSymbols = ['x', 'o'];
+  const gridSize = 5;
+  const winLength = 3;
+
+  // Create a 2D array to store the grid values
+  const grid = [];
+  for (let i = 0; i < gridSize; i++) {
+    grid[i] = [];
+    for (let j = 0; j < gridSize; j++) {
+      grid[i][j] = boxes[i * gridSize + j].innerText;
+    }
+  }
+
+  const checkDirection = (symbol, startX, startY, deltaX, deltaY) => {
+    for (let i = 0; i < winLength; i++) {
+      const x = startX + i * deltaX;
+      const y = startY + i * deltaY;
+      if (x >= gridSize || y >= gridSize || x < 0 || y < 0 || grid[x][y] !== symbol) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  for (const symbol of playerSymbols) {
+    for (let i = 0; i < gridSize; i++) {
+      for (let j = 0; j < gridSize; j++) {
+        if (grid[i][j] === symbol) {
+          if (
+            checkDirection(symbol, i, j, 1, 0) || // Check row
+            checkDirection(symbol, i, j, 0, 1) || // Check column
+            checkDirection(symbol, i, j, 1, 1) || // Check main diagonal
+            checkDirection(symbol, i, j, 1, -1)   // Check secondary diagonal
+          ) {
+            showWinner(symbol);
+            return;
+          }
         }
-    })
-}
+      }
+    }
+  }
+};
+
 
 let draw = (count) => {
     if (count === 25) {
