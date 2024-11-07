@@ -22,67 +22,43 @@ const checkWinner = () => {
   const gridSize = 5;
   const winLength = 3;
 
-  const checkLine = (line) => line.every(value => value === line[0] && value !== '');
+  // Create a 2D array to store the grid values
+  const grid = [];
+  for (let i = 0; i < gridSize; i++) {
+    grid[i] = [];
+    for (let j = 0; j < gridSize; j++) {
+      grid[i][j] = boxes[i * gridSize + j].innerText;
+    }
+  }
 
-  playerSymbols.forEach(symbol => {
-    // Vérifier les lignes
+  const checkDirection = (symbol, startX, startY, deltaX, deltaY) => {
+    for (let i = 0; i < winLength; i++) {
+      const x = startX + i * deltaX;
+      const y = startY + i * deltaY;
+      if (x >= gridSize || y >= gridSize || x < 0 || y < 0 || grid[x][y] !== symbol) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  for (const symbol of playerSymbols) {
     for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j <= gridSize - winLength; j++) {
-        const row = [];
-        for (let k = 0; k < winLength; k++) {
-          row.push(boxes[i * gridSize + j + k].innerText);
-        }
-        if (checkLine(row)) {
-          showWinner(symbol);
-          return;
-        }
-      }
-    }
-
-    // Vérifier les colonnes
-    for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j <= gridSize - winLength; j++) {
-        const col = [];
-        for (let k = 0; k < winLength; k++) {
-          col.push(boxes[(j + k) * gridSize + i].innerText);
-        }
-        if (checkLine(col)) {
-          showWinner(symbol);
-          return;
+      for (let j = 0; j < gridSize; j++) {
+        if (grid[i][j] === symbol) {
+          if (
+            checkDirection(symbol, i, j, 1, 0) || // Check row
+            checkDirection(symbol, i, j, 0, 1) || // Check column
+            checkDirection(symbol, i, j, 1, 1) || // Check main diagonal
+            checkDirection(symbol, i, j, 1, -1)   // Check secondary diagonal
+          ) {
+            showWinner(symbol);
+            return;
+          }
         }
       }
     }
-
-    // Vérifier les diagonales principales
-    for (let i = 0; i <= gridSize - winLength; i++) {
-      for (let j = 0; j <= gridSize - winLength; j++) {
-        const mainDiagonal = [];
-        for (let k = 0; k < winLength; k++) {
-          mainDiagonal.push(boxes[(i + k) * gridSize + (j + k)].innerText);
-        }
-        if (checkLine(mainDiagonal)) {
-          showWinner(symbol);
-          return;
-        }
-      }
-    }
-
-    // Vérifier les diagonales secondaires
-    for (let i = 0; i <= gridSize - winLength; i++) {
-      for (let j = winLength - 1; j < gridSize; j++) {
-        const secondaryDiagonal = [];
-        for (let k = 0; k < winLength; k++) {
-          secondaryDiagonal.push(boxes[(i + k) * gridSize + (j - k)].innerText);
-        }
-        if (checkLine(secondaryDiagonal)) {
-          showWinner(symbol);
-          return;
-        }
-      }
-    }
-  });
-
-  draw(count); // Si aucun gagnant, vérifier s'il y a un match nul
+  }
 };
 
 
