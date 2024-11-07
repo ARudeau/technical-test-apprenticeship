@@ -38,9 +38,9 @@ body {
     border-radius: 5px;
     display: grid;
     gap: 10px;
-    grid-template: repeat(3, 1fr)/repeat(3, 1fr);
+    grid-template: repeat(5, 1fr)/repeat(5, 1fr);
     padding: 10px;
-    height: 370px;
+    min-height: 370px;
 }
 
 .game-box {
